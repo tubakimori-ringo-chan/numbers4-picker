@@ -1,0 +1,38 @@
+// アプリ起動時に外部JSONを優先取得し、ローカルに統合
+async function loadFromStorage() {
+  try {
+    // 1. 最新の data/numbers4.json を読み込む
+    const res = await fetch('./data/numbers4.json');
+    if (res.ok) {
+      const remoteData = await res.json();
+      
+      // 内蔵データやローカルストレージと統合
+      if (Array.isArray(remoteData) && remoteData.length > 0) {
+        records = remoteData;
+        draws = records.map(r => r.number);
+        updateStats();
+        
+        const last = records[records.length - 1];
+        $('data-status').textContent = `保持データ · ${records.length.toLocaleString()}回分 (第${last.round || '—'}回 ${last.date || ''})`;
+      }
+    }
+  } catch (e) {
+    console.warn('最新JSONの読み込みに失敗しました。内蔵データで起動します。', e);
+    // フォールバック処理
+    loadPeriodData(25);
+  }
+
+  // お気に入りや前回の生成結果を復元
+  const savedPicks = localStorage.getItem('n4_picks');
+  const savedFavs = localStorage.getItem('n4_favs');
+
+  if (savedPicks) {
+    picks = JSON.parse(savedPicks);
+    renderPicks();
+    $('stat-picks').textContent = picks.length;
+  }
+  if (savedFavs) {
+    favorites = new Set(JSON.parse(savedFavs));
+    if (picks.length) renderPicks();
+  }
+}
