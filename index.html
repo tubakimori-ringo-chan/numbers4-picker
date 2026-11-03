@@ -233,6 +233,25 @@ button:focus-visible, select:focus-visible, label:focus-within {
     </div>
   </section>
 
+  <!-- Featured Picks -->
+  <section class="panel overflow-hidden border-violet-400/20 p-5 sm:p-6">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <div class="eyebrow">Featured · 3 PickUp</div>
+        <h2 class="mt-2 flex items-center gap-2 text-lg font-bold">
+          <i data-lucide="sparkles" class="h-4 w-4 text-violet-300"></i>解析結果の一押し3候補
+        </h2>
+        <p class="mt-2 text-xs leading-5 text-slate-400">直近10回・25回・読み込み済み全履歴の桁別頻度を組み合わせた候補です。</p>
+      </div>
+      <button id="featured-btn" onclick="generateFeaturedPicks()" class="flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 px-4 py-2.5 text-xs font-extrabold text-white shadow-lg shadow-violet-900/30 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40" disabled>
+        <i data-lucide="wand-sparkles" class="h-4 w-4"></i>3候補を解析
+      </button>
+    </div>
+    <div id="featured-picks" class="mt-5 grid gap-3 md:grid-cols-3">
+      <div class="rounded-xl border border-white/[.07] bg-white/[.025] p-4 text-center text-xs text-slate-500 md:col-span-3">履歴データを読み込むと候補を作れます</div>
+    </div>
+    <p class="mt-4 border-t border-white/[.07] pt-3 text-[10px] leading-5 text-slate-500">過去の出現頻度を使った遊び用の候補です。抽せんは独立しており、当せんを予測・保証するものではありません。</p>
+  </section>
   <!-- Stats Grid -->
   <section class="grid grid-cols-2 gap-3 lg:grid-cols-4">
     <div class="panel p-4 sm:p-5">
@@ -570,6 +589,71 @@ function weightedIndex(w) {
   return w.length - 1;
 }
 
+function featuredFrequency(rows) {
+  const counts = Array.from({ length: 4 }, () => Array(10).fill(0));
+  for (const row of rows) {
+    if (!row || !/^\d{4}$/.test(String(row.number || ''))) continue;
+    [...String(row.number)].forEach((digit, position) => counts[position][Number(digit)]++);
+  }
+  return counts.map(positionCounts => {
+    const total = positionCounts.reduce((sum, count) => sum + count, 0);
+    return positionCounts.map(count => (count + 1) / (total + 10));
+  });
+}
+
+function sampleFeaturedNumber(profile, frequencySets, exclude) {
+  for (let attempt = 0; attempt < 2000; attempt++) {
+    let number = '';
+    for (let position = 0; position < 4; position++) {
+      const weights = Array.from({ length: 10 }, (_, digit) => {
+        const score = profile.reduce((sum, part, index) =>
+          sum + part.weight * frequencySets[index][position][digit], 0);
+        return Math.max(0.0001, score);
+      });
+      number += weightedIndex(weights);
+    }
+    if (!exclude.has(number)) return number;
+  }
+  return String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+}
+
+function generateFeaturedPicks() {
+  if (!records.length) {
+    toast('先に履歴データを読み込んでください');
+    return;
+  }
+
+  const frequencySets = [
+    featuredFrequency(records.slice(-10)),
+    featuredFrequency(records.slice(-25)),
+    featuredFrequency(records)
+  ];
+  const profiles = [
+    { title: '直近2週間の注目', note: '直近10回の傾向を強めに反映', weights: [0.65, 0.25, 0.10] },
+    { title: '直近1か月のバランス', note: '直近25回を中心に全体も参照', weights: [0.20, 0.60, 0.20] },
+    { title: '全履歴の安定型', note: '全期間の傾向を中心に反映', weights: [0.10, 0.25, 0.65] }
+  ];
+  const used = new Set();
+  const featured = profiles.map(profile => {
+    const number = sampleFeaturedNumber(
+      profile.weights.map(weight => ({ weight })),
+      frequencySets,
+      used
+    );
+    used.add(number);
+    return { ...profile, number };
+  });
+
+  $('featured-picks').innerHTML = featured.map((item, index) =>
+    '<article class="rounded-xl border border-violet-400/15 bg-gradient-to-br from-violet-500/[.07] to-cyan-500/[.04] p-4">' +
+      '<div class="eyebrow">PICKUP 0' + (index + 1) + '</div>' +
+      '<div class="mt-2 text-xs font-bold text-slate-200">' + item.title + '</div>' +
+      '<div class="digit mt-3 text-3xl font-black tracking-[.2em] text-transparent bg-gradient-to-r from-violet-200 to-cyan-200 bg-clip-text">' + item.number + '</div>' +
+      '<div class="mt-2 text-[10px] text-slate-400">' + item.note + '</div>' +
+    '</article>'
+  ).join('');
+  lucide.createIcons();
+}
 function makePicks() {
   if (!draws.length) return;
   const { f, last } = computeStats();
