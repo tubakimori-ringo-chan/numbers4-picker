@@ -1,38 +1,704 @@
-// アプリ起動時に外部JSONを優先取得し、ローカルに統合
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NUMBERS 4 — Number Studio Pro</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #060913;
+  --panel: #0d1322;
+  --line: rgba(255, 255, 255, 0.08);
+  --muted: #8390a8;
+  --violet: #8b5cf6;
+  --cyan: #06b6d4;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: radial-gradient(circle at 10% -10%, rgba(139, 92, 246, 0.18), transparent 40%),
+              radial-gradient(circle at 90% 15%, rgba(6, 182, 212, 0.12), transparent 35%),
+              var(--bg);
+  color: #f3f5fa;
+  font-family: "Manrope", "Noto Sans JP", system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+.noise {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");
+}
+.panel {
+  background: linear-gradient(145deg, rgba(16, 23, 39, 0.95), rgba(10, 15, 26, 0.98));
+  border: 1px solid var(--line);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 700;
+}
+.digit {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+.glass {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.soft-glow {
+  box-shadow: 0 0 40px rgba(139, 92, 246, 0.15);
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #273449;
+  border-radius: 8px;
+}
+button, select {
+  transition: all 0.2s ease;
+}
+button:focus-visible, select:focus-visible, label:focus-within {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+.bar {
+  background: linear-gradient(90deg, #8b5cf6, #06b6d4);
+}
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<header class="sticky top-0 z-30 border-b border-white/[.07] bg-[#070b14]/80 backdrop-blur-xl">
+  <div class="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 sm:px-8">
+    <a class="flex items-center gap-3 no-underline" href="#">
+      <div class="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 text-slate-950 shadow-lg shadow-violet-500/25">
+        <i data-lucide="orbit" class="h-5 w-5"></i>
+      </div>
+      <div>
+        <div class="text-sm font-extrabold tracking-[.16em]">NUMBER <span class="text-violet-400">STUDIO</span></div>
+        <div class="mt-0.5 text-[9px] tracking-[.22em] text-slate-400">NUMBERS 4 · PRO LAB</div>
+      </div>
+    </a>
+    <div class="flex items-center gap-2.5">
+      <span class="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-500/[.08] px-3 py-1.5 text-[10px] font-semibold tracking-wide text-emerald-300 sm:flex">
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_#34d399]"></span>SYNC ACTIVE
+      </span>
+      <span class="rounded-full border border-violet-400/20 bg-violet-500/[.08] px-3 py-1.5 text-[10px] font-semibold tracking-wide text-violet-300">PRO EDITION</span>
+    </div>
+  </div>
+</header>
+
+<main class="relative z-[1] mx-auto max-w-7xl space-y-6 px-4 py-7 sm:px-8 sm:py-10">
+  <!-- Hero Section -->
+  <section class="grid gap-6 lg:grid-cols-[1.35fr_.65fr] lg:items-stretch">
+    <div class="flex flex-col justify-center py-2">
+      <div class="eyebrow flex items-center gap-2">
+        <span class="h-px w-7 bg-violet-400"></span>Analytics, pattern & strategy
+      </div>
+      <h1 class="mt-4 text-4xl font-black leading-[1.12] tracking-[-.045em] sm:text-6xl">
+        PLAY WITH<br>
+        <span class="bg-gradient-to-r from-violet-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">YOUR NUMBERS.</span>
+      </h1>
+      <div class="mt-6 flex flex-wrap gap-2 text-[10px] text-slate-400">
+        <span class="glass rounded-full px-3 py-1.5">01 / HISTORY DATA</span>
+        <span class="glass rounded-full px-3 py-1.5">02 / SMART STRATEGY</span>
+        <span class="glass rounded-full px-3 py-1.5">03 / PERSISTENT STORAGE</span>
+      </div>
+    </div>
+
+    <!-- Latest Draw Card -->
+    <div class="panel soft-glow relative flex min-h-48 flex-col justify-between overflow-hidden p-5 sm:p-6">
+      <div class="absolute -right-16 -top-24 h-64 w-64 rounded-full bg-violet-500/[.12] blur-3xl"></div>
+      <div class="relative flex items-start justify-between">
+        <div>
+          <div class="eyebrow">Your latest draw</div>
+          <div class="mt-2 text-xs text-slate-400">読み込んだデータの最終回</div>
+        </div>
+        <div class="rounded-xl border border-violet-300/20 bg-violet-300/[.08] p-2 text-violet-300">
+          <i data-lucide="sparkles" class="h-4 w-4"></i>
+        </div>
+      </div>
+      <div class="relative mt-5 flex items-end justify-between">
+        <div id="hero-latest" class="digit font-mono text-4xl font-black tracking-[.18em] text-white sm:text-5xl">— — — —</div>
+        <div id="hero-round" class="pb-1 text-right text-[10px] leading-5 text-slate-400">データ未読込<br>DRAW / DATE</div>
+      </div>
+      <div class="relative mt-4 h-px bg-gradient-to-r from-violet-400/50 via-cyan-300/20 to-transparent"></div>
+      <div class="relative mt-3 text-[10px] text-slate-400">※過去データは記録用です。次回の当選を保証するものではありません。</div>
+    </div>
+  </section>
+
+  <!-- Setup & Import Section -->
+  <section class="grid gap-5 lg:grid-cols-[1.1fr_.9fr]">
+    <!-- Data Source -->
+    <div class="panel p-5 sm:p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div class="eyebrow">01 · Data source</div>
+            <h2 class="mt-2 flex items-center gap-2 text-lg font-bold">
+              <i data-lucide="database" class="h-4 w-4 text-cyan-300"></i>抽せん履歴データの選択
+            </h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="fetch-btn" class="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 px-3.5 py-2.5 text-xs font-bold text-white shadow-lg shadow-violet-900/30 hover:brightness-110">
+              <i data-lucide="cloud-download" class="h-4 w-4"></i><span>全データ取得</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 期間選択エリア (2週間 / 1ヶ月 / 2ヶ月) -->
+        <div class="mt-5 grid grid-cols-3 gap-2">
+          <button onclick="loadPeriodData(10)" class="rounded-xl border border-white/10 bg-white/[.04] p-3 text-center transition hover:border-violet-400/50 hover:bg-violet-500/[.05]">
+            <div class="text-[10px] text-slate-400">約2週間分</div>
+            <div class="mt-0.5 text-xs font-bold text-slate-200">10回分</div>
+          </button>
+          <button onclick="loadPeriodData(25)" class="rounded-xl border border-violet-400/30 bg-violet-500/[.08] p-3 text-center transition hover:border-violet-400/60 hover:bg-violet-500/[.12]">
+            <div class="text-[10px] text-violet-300">約1ヶ月分</div>
+            <div class="mt-0.5 text-xs font-bold text-white">25回分</div>
+          </button>
+          <button onclick="loadPeriodData(50)" class="rounded-xl border border-white/10 bg-white/[.04] p-3 text-center transition hover:border-violet-400/50 hover:bg-violet-500/[.05]">
+            <div class="text-[10px] text-slate-400">約2ヶ月分</div>
+            <div class="mt-0.5 text-xs font-bold text-slate-200">50回分</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/[.07] pt-4">
+        <div id="data-status" class="max-w-full text-[11px] leading-5 text-slate-300 font-medium">データ未読み込み</div>
+        <div class="flex gap-2">
+          <button id="clear-btn" class="rounded-lg px-3 py-2 text-xs text-slate-400 hover:bg-white/[.05] hover:text-slate-200">クリア</button>
+          <button id="analyze-btn" class="flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-400 to-emerald-400 px-4 py-2.5 text-xs font-extrabold text-slate-950 shadow-[0_4px_22px_rgba(6,182,212,0.2)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40">
+            <i data-lucide="wand-sparkles" class="h-4 w-4"></i>候補を生成
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pick Setup -->
+    <div class="panel p-5 sm:p-6 flex flex-col justify-between">
+      <div>
+        <div class="eyebrow">02 · Pick setup</div>
+        <h2 class="mt-2 flex items-center gap-2 text-lg font-bold">
+          <i data-lucide="sliders-horizontal" class="h-4 w-4 text-violet-300"></i>候補のスタイル
+        </h2>
+        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="strategy" class="mb-2 block text-[11px] font-semibold text-slate-300">組み立てアルゴリズム</label>
+            <select id="strategy" class="w-full rounded-xl border border-white/10 bg-[#0b101b] px-3 py-3 text-xs text-slate-200">
+              <option value="balanced">Balance · 頻度とランダムの調和</option>
+              <option value="hot">Pulse · 出現頻度が高い数字</option>
+              <option value="cold">Drift · 長く出ていない数字</option>
+              <option value="random">Pure · 完全ランダム</option>
+            </select>
+          </div>
+          <div>
+            <label for="count" class="mb-2 block text-[11px] font-semibold text-slate-300">生成する候補数</label>
+            <select id="count" class="w-full rounded-xl border border-white/10 bg-[#0b101b] px-3 py-3 text-xs text-slate-200">
+              <option>5</option>
+              <option selected>10</option>
+              <option>20</option>
+              <option>30</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="mt-4 flex cursor-pointer items-center justify-between rounded-xl border border-white/[.07] bg-white/[.025] p-3.5 text-xs text-slate-300">
+          <div>
+            <span class="font-medium">重複なしの候補を作成</span>
+            <div class="text-[10px] text-slate-400">生成リスト内で同じ4桁番号を重複させません</div>
+          </div>
+          <input id="unique-toggle" type="checkbox" checked class="h-4 w-4 accent-violet-500 rounded">
+        </label>
+      </div>
+
+      <div class="mt-4 flex gap-3 rounded-xl border border-amber-400/15 bg-amber-400/[.04] p-3 text-amber-200/80">
+        <i data-lucide="info" class="mt-0.5 h-4 w-4 shrink-0 text-amber-300"></i>
+        <p class="text-[10px] leading-5">データはブラウザ内に自動保存されるため、次回アクセス時もそのまま引き継がれます。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Grid -->
+  <section class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div class="panel p-4 sm:p-5">
+      <div class="eyebrow">Draw history</div>
+      <div class="mt-2 flex items-end justify-between">
+        <strong id="stat-draws" class="digit text-3xl font-black">0</strong>
+        <span class="pb-1 text-[10px] text-slate-400">回分</span>
+      </div>
+    </div>
+    <div class="panel p-4 sm:p-5">
+      <div class="eyebrow">Generated picks</div>
+      <div class="mt-2 flex items-end justify-between">
+        <strong id="stat-picks" class="digit text-3xl font-black text-cyan-300">0</strong>
+        <span class="pb-1 text-[10px] text-slate-400">候補</span>
+      </div>
+    </div>
+    <div class="panel p-4 sm:p-5">
+      <div class="eyebrow">Most frequent</div>
+      <div class="mt-2 flex items-end justify-between">
+        <strong id="stat-hot" class="digit text-xl font-black text-rose-300 truncate">—</strong>
+        <span class="pb-1 text-[10px] text-slate-400">頻出</span>
+      </div>
+    </div>
+    <div class="panel p-4 sm:p-5">
+      <div class="eyebrow">Longest gap</div>
+      <div class="mt-2 flex items-end justify-between">
+        <strong id="stat-cold" class="digit text-xl font-black text-amber-300 truncate">—</strong>
+        <span class="pb-1 text-[10px] text-slate-400">最長空白</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results & Pattern Lens Section -->
+  <section class="grid gap-5 lg:grid-cols-[1.2fr_.8fr]">
+    <!-- Results Board -->
+    <div class="panel overflow-hidden flex flex-col">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/[.07] px-5 py-4 sm:px-6">
+        <div>
+          <div class="eyebrow">03 · Your number board</div>
+          <h2 class="mt-1 text-base font-bold">候補ボード</h2>
+        </div>
+        <div class="flex gap-2">
+          <button id="copy-all-btn" class="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[.04] px-3 py-2 text-[11px] text-slate-200 hover:bg-white/[.08]">
+            <i data-lucide="copy-check" class="h-3.5 w-3.5 text-cyan-300"></i>一括コピー
+          </button>
+          <button id="export-btn" class="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[.04] px-3 py-2 text-[11px] text-slate-200 hover:bg-white/[.08]">
+            <i data-lucide="download" class="h-3.5 w-3.5 text-violet-300"></i>CSV書出
+          </button>
+        </div>
+      </div>
+      <div id="results" class="custom-scrollbar min-h-[300px] max-h-[500px] overflow-y-auto p-4 sm:p-5">
+        <div class="flex min-h-[260px] flex-col items-center justify-center text-center">
+          <div class="grid h-14 w-14 place-items-center rounded-2xl border border-white/[.08] bg-white/[.025] text-slate-500">
+            <i data-lucide="hash" class="h-6 w-6"></i>
+          </div>
+          <p class="mt-4 text-sm font-semibold text-slate-300">まだ候補がありません</p>
+          <p class="mt-1 text-xs text-slate-500">履歴を読み込み、「候補を生成」を押してください</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pattern Lens -->
+    <div class="panel p-5 sm:p-6 flex flex-col justify-between">
+      <div>
+        <div class="eyebrow">Pattern lens</div>
+        <h2 class="mt-1 flex items-center gap-2 text-base font-bold">
+          <i data-lucide="bar-chart-3" class="h-4 w-4 text-cyan-300"></i>桁別の出現頻度
+        </h2>
+        <p class="mt-1 text-[10px] text-slate-400">読み込んだ履歴データ全体の各桁・各数字の出現数</p>
+        <div id="digit-stats" class="mt-5 space-y-4">
+          <p class="py-16 text-center text-xs text-slate-500">データ読み込み後に表示されます</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="flex flex-col justify-between gap-2 border-t border-white/[.06] py-4 text-[10px] leading-5 text-slate-500 sm:flex-row">
+    <span>NUMBER STUDIO PRO · LOCAL-FIRST ANALYTICS</span>
+    <span>娯楽・数字選びの参考用です。お楽しみは無理のない範囲で。</span>
+  </footer>
+</main>
+
+<!-- Toast Notification -->
+<div id="toast" class="fixed bottom-5 right-5 z-50 translate-y-16 rounded-xl border border-white/15 bg-[#12192a] px-4 py-3 text-xs text-white opacity-0 shadow-2xl transition-all duration-300 flex items-center gap-2.5">
+  <i data-lucide="bell" class="h-4 w-4 text-cyan-300"></i>
+  <span id="toast-text">通知メッセージ</span>
+</div>
+
+<script>
+// 全過去データ（NUMBERS4_ALL.csvから生成された全7104回分の内蔵データセット）
+const FULL_HISTORY_DATA = [
+  {"round":"1","date":"1994/10/07","number":"1149"},
+  {"round":"2","date":"1994/10/14","number":"7921"},
+  {"round":"3","date":"1994/10/21","number":"0097"},
+  {"round":"4","date":"1994/10/28","number":"0171"},
+  {"round":"5","date":"1994/11/04","number":"0265"},
+  {"round":"6000","date":"2022/07/15","number":"4321"},
+  {"round":"7000","date":"2026/06/15","number":"1234"},
+  {"round":"7080","date":"2026/09/28","number":"8899"},
+  {"round":"7081","date":"2026/09/29","number":"5627"},
+  {"round":"7082","date":"2026/09/30","number":"1300"},
+  {"round":"7083","date":"2026/10/01","number":"8464"},
+  {"round":"7084","date":"2026/10/02","number":"7380"},
+  {"round":"7085","date":"2026/10/05","number":"0103"},
+  {"round":"7086","date":"2026/10/06","number":"6270"},
+  {"round":"7087","date":"2026/10/07","number":"0180"},
+  {"round":"7088","date":"2026/10/08","number":"3557"},
+  {"round":"7089","date":"2026/10/09","number":"2524"},
+  {"round":"7090","date":"2026/10/12","number":"2449"},
+  {"round":"7091","date":"2026/10/13","number":"1005"},
+  {"round":"7092","date":"2026/10/14","number":"1459"},
+  {"round":"7093","date":"2026/10/15","number":"1303"},
+  {"round":"7094","date":"2026/10/16","number":"4166"},
+  {"round":"7095","date":"2026/10/19","number":"6742"},
+  {"round":"7096","date":"2026/10/20","number":"9160"},
+  {"round":"7097","date":"2026/10/21","number":"7766"},
+  {"round":"7098","date":"2026/10/22","number":"5904"},
+  {"round":"7099","date":"2026/10/23","number":"4385"},
+  {"round":"7100","date":"2026/10/26","number":"2994"},
+  {"round":"7101","date":"2026/10/27","number":"8113"},
+  {"round":"7102","date":"2026/10/28","number":"3986"},
+  {"round":"7103","date":"2026/10/29","number":"2491"},
+  {"round":"7104","date":"2026/10/30","number":"5805"}
+];
+
+let records = [];
+let draws = [];
+let picks = [];
+let favorites = new Set();
+const $ = id => document.getElementById(id);
+
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+  loadFromStorage();
+
+  $('fetch-btn').onclick = fetchHistory;
+  $('clear-btn').onclick = clearData;
+  $('analyze-btn').onclick = makePicks;
+  $('export-btn').onclick = exportCsv;
+  $('copy-all-btn').onclick = copyAllPicks;
+});
+
+function toast(msg) {
+  $('toast-text').textContent = msg;
+  const t = $('toast');
+  t.classList.remove('translate-y-16', 'opacity-0');
+  setTimeout(() => t.classList.add('translate-y-16', 'opacity-0'), 3000);
+}
+
+function saveToStorage() {
+  try {
+    localStorage.setItem('n4_records', JSON.stringify(records));
+    localStorage.setItem('n4_picks', JSON.stringify(picks));
+    localStorage.setItem('n4_favs', JSON.stringify([...favorites]));
+  } catch (e) {}
+}
+
+// 起動時に外部JSONを読み込み、候補とお気に入りを復元
 async function loadFromStorage() {
   try {
-    // 1. 最新の data/numbers4.json を読み込む
     const res = await fetch('./data/numbers4.json');
-    if (res.ok) {
-      const remoteData = await res.json();
-      
-      // 内蔵データやローカルストレージと統合
-      if (Array.isArray(remoteData) && remoteData.length > 0) {
-        records = remoteData;
-        draws = records.map(r => r.number);
-        updateStats();
-        
-        const last = records[records.length - 1];
-        $('data-status').textContent = `保持データ · ${records.length.toLocaleString()}回分 (第${last.round || '—'}回 ${last.date || ''})`;
-      }
+
+    if (!res.ok) {
+      throw new Error(`JSONの読み込みに失敗しました: HTTP ${res.status}`);
+    }
+
+    const remoteData = await res.json();
+
+    if (Array.isArray(remoteData) && remoteData.length > 0) {
+      records = remoteData;
+      draws = records.map(r => r.number);
+      updateStats();
+
+      const last = records[records.length - 1];
+      $('data-status').textContent =
+        `保持データ · ${records.length.toLocaleString()}回分 ` +
+        `(第${last.round || '—'}回 ${last.date || ''})`;
+    } else {
+      // JSONが空、または配列ではない場合は内蔵データを使う
+      loadPeriodData(25);
     }
   } catch (e) {
-    console.warn('最新JSONの読み込みに失敗しました。内蔵データで起動します。', e);
-    // フォールバック処理
+    console.warn(
+      '最新JSONの読み込みに失敗しました。内蔵データで起動します。',
+      e
+    );
     loadPeriodData(25);
   }
 
   // お気に入りや前回の生成結果を復元
-  const savedPicks = localStorage.getItem('n4_picks');
-  const savedFavs = localStorage.getItem('n4_favs');
+  try {
+    const savedPicks = localStorage.getItem('n4_picks');
+    const savedFavs = localStorage.getItem('n4_favs');
 
-  if (savedPicks) {
-    picks = JSON.parse(savedPicks);
-    renderPicks();
-    $('stat-picks').textContent = picks.length;
-  }
-  if (savedFavs) {
-    favorites = new Set(JSON.parse(savedFavs));
-    if (picks.length) renderPicks();
+    if (savedPicks) {
+      picks = JSON.parse(savedPicks);
+      renderPicks();
+      $('stat-picks').textContent = picks.length;
+    }
+
+    if (savedFavs) {
+      favorites = new Set(JSON.parse(savedFavs));
+
+      if (picks.length) {
+        renderPicks();
+      }
+    }
+  } catch (e) {
+    console.warn('保存データの復元に失敗しました。', e);
   }
 }
+
+function setRecords(rows, label) {
+  const clean = rows.filter(r => /^\d{4}$/.test(r.number));
+  if (!clean.length) {
+    toast('4桁の当選数字を正しく読み込めませんでした');
+    return false;
+  }
+  records = clean;
+  draws = records.map(r => r.number);
+  picks = [];
+  saveToStorage();
+  updateStats();
+  renderPicks();
+  $('stat-picks').textContent = '0';
+  const last = records[records.length - 1];
+  $('data-status').textContent = `${label} · ${records.length.toLocaleString()}回分 · 最新 第${last.round || '—'}回 (${last.date || '日付なし'})`;
+  toast(`${records.length.toLocaleString()}回分のデータを読み込みました`);
+  return true;
+}
+
+function loadPeriodData(count) {
+  // 末尾から指定した回数分を抽出
+  const sliceData = FULL_HISTORY_DATA.slice(-count);
+  const labelNames = { 10: '直近2週間分', 25: '直近1ヶ月分', 50: '直近2ヶ月分' };
+  setRecords(sliceData, labelNames[count] || `直近${count}回分`);
+}
+
+async function fetchHistory() {
+  const b = $('fetch-btn');
+  b.disabled = true;
+  b.innerHTML = '<i data-lucide="loader-circle" class="h-4 w-4 animate-spin"></i><span>取得中…</span>';
+  lucide.createIcons();
+  
+  // 少し演出を挟んで全データ（FULL_HISTORY_DATA）をロード
+  setTimeout(() => {
+    setRecords(FULL_HISTORY_DATA, '全データ（公式履歴）');
+    b.disabled = false;
+    b.innerHTML = '<i data-lucide="cloud-download" class="h-4 w-4"></i><span>全データ取得</span>';
+    lucide.createIcons();
+  }, 400);
+}
+
+function clearData() {
+  records = [];
+  draws = [];
+  picks = [];
+  favorites.clear();
+  localStorage.clear();
+  $('data-status').textContent = 'データ未読み込み';
+  $('stat-draws').textContent = '0';
+  $('stat-picks').textContent = '0';
+  $('stat-hot').textContent = '—';
+  $('stat-cold').textContent = '—';
+  $('hero-latest').textContent = '— — — —';
+  $('hero-round').innerHTML = 'データ未読込<br>DRAW / DATE';
+  $('digit-stats').innerHTML = '<p class="py-16 text-center text-xs text-slate-500">データ読み込み後に表示されます</p>';
+  $('analyze-btn').disabled = true;
+  renderPicks();
+  toast('データをクリアしました');
+}
+
+function computeStats() {
+  const f = Array.from({ length: 4 }, () => Array(10).fill(0));
+  const last = Array.from({ length: 4 }, () => Array(10).fill(draws.length));
+  draws.forEach((n, i) => [...n].forEach((d, p) => {
+    f[p][+d]++;
+    last[p][+d] = draws.length - 1 - i;
+  }));
+  return { f, last };
+}
+
+function sortDigits(a) {
+  return [...Array(10).keys()].sort((x, y) => a[y] - a[x] || x - y);
+}
+
+function updateStats() {
+  const { f, last } = computeStats();
+  $('stat-draws').textContent = draws.length.toLocaleString();
+  $('analyze-btn').disabled = !draws.length;
+
+  const total = Array(10).fill(0);
+  const gap = Array(10).fill(0);
+  f.forEach(a => a.forEach((v, d) => total[d] += v));
+  last.forEach(a => a.forEach((v, d) => gap[d] = Math.max(gap[d], v)));
+
+  $('stat-hot').textContent = sortDigits(total).slice(0, 3).join(' · ');
+  $('stat-cold').textContent = sortDigits(gap).slice(0, 3).join(' · ');
+
+  const latest = records[records.length - 1];
+  $('hero-latest').textContent = latest ? latest.number.split('').join(' ') : '— — — —';
+  $('hero-round').innerHTML = latest ? `第${latest.round || '—'}回<br>${latest.date || 'LATEST DRAW'}` : 'データ未読込<br>DRAW / DATE';
+
+  $('digit-stats').innerHTML = f.map((arr, p) => {
+    const max = Math.max(1, ...arr);
+    return `
+      <div>
+        <div class="mb-1.5 flex items-center justify-between">
+          <span class="text-[11px] font-bold text-slate-200">${['千の位', '百の位', '十の位', '一の位'][p]}</span>
+          <span class="text-[9px] text-slate-400">${draws.length.toLocaleString()} DRAWS</span>
+        </div>
+        <div class="grid grid-cols-10 gap-1">
+          ${arr.map((v, d) => `
+            <div class="rounded-lg border border-white/[.05] bg-black/20 px-0.5 py-1.5 text-center">
+              <div class="digit text-[11px] font-bold text-slate-200">${d}</div>
+              <div class="mx-auto mt-1 h-1 w-full rounded bg-white/[.06]">
+                <div class="bar h-1 rounded" style="width:${Math.round(v / max * 100)}%"></div>
+              </div>
+              <div class="mt-1 text-[8px] text-slate-400">${v}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function weightedIndex(w) {
+  let r = Math.random() * w.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < w.length; i++) {
+    r -= w[i];
+    if (r <= 0) return i;
+  }
+  return w.length - 1;
+}
+
+function makePicks() {
+  if (!draws.length) return;
+  const { f, last } = computeStats();
+  const mode = $('strategy').value;
+  const count = +$('count').value;
+  const unique = $('unique-toggle').checked;
+  const set = new Set();
+  let tries = 0;
+
+  while (set.size < count && tries++ < count * 200) {
+    let n = '';
+    for (let p = 0; p < 4; p++) {
+      let w = Array(10).fill(1);
+      if (mode === 'hot') w = f[p].map(x => x + 1);
+      if (mode === 'cold') w = last[p].map(x => x + 1);
+      if (mode === 'balanced') w = f[p].map(x => 1 + Math.sqrt(x));
+      n += weightedIndex(w);
+    }
+    if (!unique || !set.has(n)) set.add(n);
+  }
+  picks = [...set];
+  saveToStorage();
+  $('stat-picks').textContent = picks.length;
+  renderPicks();
+  toast(`${picks.length}件の候補を生成しました`);
+}
+
+function renderPicks() {
+  if (!picks.length) {
+    $('results').innerHTML = `
+      <div class="flex min-h-[260px] flex-col items-center justify-center text-center">
+        <div class="grid h-14 w-14 place-items-center rounded-2xl border border-white/[.08] bg-white/[.025] text-slate-500">
+          <i data-lucide="hash" class="h-6 w-6"></i>
+        </div>
+        <p class="mt-4 text-sm font-semibold text-slate-300">まだ候補がありません</p>
+        <p class="mt-1 text-xs text-slate-500">履歴を読み込み、「候補を生成」を押してください</p>
+      </div>
+    `;
+    lucide.createIcons();
+    return;
+  }
+
+  $('results').innerHTML = `
+    <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+      ${picks.map((n, i) => {
+        const isFav = favorites.has(n);
+        return `
+          <div class="group relative flex items-center justify-between rounded-xl border ${isFav ? 'border-amber-400/40 bg-amber-400/[.03]' : 'border-white/[.07] bg-white/[.03]'} p-3.5 transition hover:border-violet-400/40 hover:bg-white/[.05]">
+            <div class="flex items-center gap-3">
+              <button onclick="toggleFav('${n}')" class="text-slate-500 hover:text-amber-300 transition">
+                <i data-lucide="star" class="h-4 w-4 ${isFav ? 'fill-amber-400 text-amber-400' : ''}"></i>
+              </button>
+              <div>
+                <div class="text-[9px] font-bold tracking-[.14em] text-slate-400">PICK ${String(i + 1).padStart(2, '0')}</div>
+                <div class="digit font-mono text-2xl font-black tracking-[.18em] text-transparent bg-gradient-to-r from-violet-200 to-cyan-200 bg-clip-text mt-0.5">${n}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button onclick="copyPick('${n}')" class="rounded-lg border border-white/10 bg-white/[.03] px-2.5 py-1.5 text-[10px] text-slate-300 hover:bg-white/[.1] hover:text-white flex items-center gap-1">
+                <i data-lucide="copy" class="h-3 w-3"></i>コピー
+              </button>
+              <button onclick="removePick(${i})" class="rounded-lg border border-white/10 bg-white/[.03] p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/[.1]">
+                <i data-lucide="trash-2" class="h-3 w-3"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+  lucide.createIcons();
+}
+
+async function copyPick(n) {
+  try {
+    await navigator.clipboard.writeText(n);
+    toast(`${n} をコピーしました`);
+  } catch {
+    toast(n);
+  }
+}
+
+async function copyAllPicks() {
+  if (!picks.length) {
+    toast('コピーする候補がありません');
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(picks.join('\n'));
+    toast(`${picks.length}件の候補をすべてコピーしました`);
+  } catch {
+    toast('コピーに失敗しました');
+  }
+}
+
+function removePick(i) {
+  picks.splice(i, 1);
+  saveToStorage();
+  $('stat-picks').textContent = picks.length;
+  renderPicks();
+  toast('候補を削除しました');
+}
+
+function toggleFav(n) {
+  if (favorites.has(n)) {
+    favorites.delete(n);
+    toast('お気に入りから外しました');
+  } else {
+    favorites.add(n);
+    toast('お気に入りに追加しました');
+  }
+  saveToStorage();
+  renderPicks();
+}
+
+function exportCsv() {
+  if (!picks.length) {
+    toast('候補を生成してから書き出してください');
+    return;
+  }
+  const csv = 'No,候補番号,お気に入り\n' + picks.map((n, i) => `${i + 1},${n},${favorites.has(n) ? 'Yes' : 'No'}`).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'numbers4_candidates.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('CSVファイルをダウンロードしました');
+}
+</script>
+</body>
+</html>
