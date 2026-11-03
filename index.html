@@ -521,6 +521,7 @@ function clearData() {
   $('hero-round').innerHTML = 'データ未読込<br>DRAW / DATE';
   $('digit-stats').innerHTML = '<p class="py-16 text-center text-xs text-slate-500">データ読み込み後に表示されます</p>';
   $('analyze-btn').disabled = true;
+$('featured-btn').disabled = true;
   renderPicks();
   toast('データをクリアしました');
 }
@@ -543,6 +544,7 @@ function updateStats() {
   const { f, last } = computeStats();
   $('stat-draws').textContent = draws.length.toLocaleString();
   $('analyze-btn').disabled = !draws.length;
+$('featured-btn').disabled = !records.length;
 
   const total = Array(10).fill(0);
   const gap = Array(10).fill(0);
