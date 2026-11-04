@@ -73,3 +73,4 @@ async function updateGame({ size, url }) {
   console.error(error.message);
   process.exitCode = 1;
 });
+
