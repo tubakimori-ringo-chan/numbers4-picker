@@ -1,4 +1,4 @@
-name: Auto Update Numbers 4 Data
+name: Auto Update Numbers 3 and 4 Data
 
 on:
   schedule:
@@ -22,17 +22,17 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Fetch Latest Numbers 4 Data
+      - name: Fetch Latest Numbers 3 and 4 Data
         run: node scripts/update_numbers4.js
 
       - name: Commit and Push if changed
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/numbers4.json
+          git add data/numbers3.json data/numbers4.json
           if git diff --staged --quiet; then
             echo "変更はありません。"
           else
-            git commit -m "auto: ナンバーズ4最新当せん結果の更新"
+            git commit -m "auto: ナンバーズ3・4最新当せん結果の更新"
             git push
           fi
